@@ -22,7 +22,7 @@ It returns `get_versions()["version"]`. See below for what that means.
 
 ## What does get_versions() return?
 
-`get_versions()` returns a small dictionary of rendered version information, which always contains four keys: 
+`get_versions()` returns a small dictionary of rendered version information, which always contains four keys:
 
 | key | description |
 | --- | ---         |
@@ -76,6 +76,7 @@ The renderer function is controlled by a configuration value called `version-sty
 | `pep440-pre`   | `TAG[.post.devDISTANCE]`, a PEP-440 compatible version string which loses information but has the useful property that non-tagged versions qualify for `pip install --pre` (by virtue of the `.dev` component). This form does not record the commit hash, nor the `-dirty` flag. |
 | `pep440-post`  | `TAG[.postDISTANCE[.dev0]+gSHORTHASH]`, a PEP-440 compatible version string which allows all commits to get installable versions, and retains the commit hash.
 | `pep440-old`   | `TAG[.postDISTANCE[.dev0]]`, a PEP-440 compatible version string which loses information but enables downstream projects to depend upon post-release versions (by counting commits). The ".dev0" suffix indicates a dirty tree. This form does not record the commit hash. If nothing has been tagged, this will be `0.postDISTANCE[.dev0]`. Note that PEP-0440 rules indicate that `X.dev0` sorts as "older" than `X`, so our -dirty flag is expressed somewhat backwards (usually "dirty" indicates newer changes than the base commit), but PEP-0440 offers no positive post-".postN" component. You should never be releasing software with -dirty anyways. |
+| `pep440-dev`   | `TAG[.devDISTANCE]#gSHORTHASH[.dirty]`, a PEP-440 compatible version string which allows all commits to get installable versions, retains the commit hash and is suited for usage with virtual tags as provided by the lookup feature to use during development of the next version to be released. |
 | `git-describe` | `TAG[-DISTANCE-gSHORTHASH][-dirty]`, equivalent to `git describe --tags --dirty --always`. The distance and shorthash are only included if the commit is not tagged. If nothing was tagged, this will be the short revisionid, plus "-dirty" if dirty. |
 | `git-describe-long` | `TAG-DISTANCE-gSHORTHASH[-dirty]`, equivalent to `git describe --tags --dirty --always --long`. The distance and shorthash are included unconditionally. As with `git-describe`, if nothing was tagged, this will be the short revisionid, possibly with "-dirty". |
 
@@ -108,6 +109,6 @@ The from-keywords mode will only produce `exact-tag` and `full-revisionid`. If t
 | pep440       | TAG[+DIST.gHASH]   | TAG or 0.unknown? | TAG[+DIST.gHASH[.dirty]] | TAG or ?  |
 | pep440-pre   | TAG[.post.devDIST] | TAG or ?          | TAG[.post.devDIST]       | TAG or ?  |
 | pep440-old   | TAG[.postDIST]     | TAG or ?          | TAG[.postDIST[.dev0]]    | TAG or ?  |
+| pep440-dev   | TAG[.devDIST]      | TAG or ?          | ?                        | TAG or ?  |
 | git-describe | TAG[-DIST-gHASH]   | TAG or ?          | TAG[-DIST-gHASH][-dirty] | TAG or ?  |
 | long         | TAG-DIST-gHASH     | TAG-gHASH or ?    | TAG-DIST-gHASH[-dirty]   | ?         |
-
