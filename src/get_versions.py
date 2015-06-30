@@ -57,6 +57,25 @@ def get_versions(verbose=False):
     except NotThisMethod:
         pass
 
+    lookupfile = cfg.lookupfile if cfg.lookupfile is not None \
+        else ".versioneer-lookup"
+    lookuppath = os.path.join(root, lookupfile)
+    if os.path.exists(lookuppath):
+        parse_lookup_file_f = handlers.get("parse_lookup_file")
+        versions_from_lookup_f = handlers.get("pieces_from_lookup")
+        if parse_lookup_file_f and versions_from_lookup_f:
+            try:
+                lookup_data = parse_lookup_file_f(lookuppath)
+                pieces = versions_from_lookup_f(lookup_data, root, verbose)
+                ver = render(pieces, cfg.style)
+                if verbose:
+                    print("got version from lookup file")
+                return ver
+            except NotThisMethod:
+                pass
+    elif verbose:
+        print("lookup file %s doesn't exist")
+
     from_vcs_f = handlers.get("pieces_from_vcs")
     if from_vcs_f:
         try:

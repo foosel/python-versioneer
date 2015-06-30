@@ -13,7 +13,7 @@ from pkg_resources import parse_version, SetuptoolsLegacyVersion
 sys.path.insert(0, "src")
 import common
 from render import render
-from git import from_vcs, from_keywords
+from git import from_vcs, from_keywords, from_lookup
 from subprocess_helper import run_command
 
 class ParseGitDescribe(unittest.TestCase):
@@ -78,6 +78,134 @@ class ParseGitDescribe(unittest.TestCase):
         os.rmdir(self.fakegit)
         os.rmdir(self.fakeroot)
 
+LOOKUPFILE = """
+# this is a comment
+branchA
+branchB/.*
+
+branchC 1.1 shaC # this should be ignored
+branchD 1.2 shaD pep440-dev
+
+# branchE # this one shouldn't make it to the lookup data
+
+branchF pep440-post
+"""
+
+class Lookup(unittest.TestCase):
+    def setUp(self):
+        self.fakeroot = tempfile.mkdtemp()
+        self.fakegit = os.path.join(self.fakeroot, ".git")
+        os.mkdir(self.fakegit)
+
+        self.fakelookup = os.path.join(self.fakeroot, "lookupfile")
+        with open(self.fakelookup, "w+") as f:
+            f.write(LOOKUPFILE)
+
+    def test_parser(self):
+        lookup_data = from_lookup.git_parse_lookup_file(self.fakelookup)
+
+        import re
+        expected = [[re.compile("branchA"), None, None, None],
+                    [re.compile("branchB/.*"), None, None, None],
+                    [re.compile("branchC"), None, "1.1", "shaC"],
+                    [re.compile("branchD"), "pep440-dev", "1.2", "shaD"],
+                    [re.compile("branchF"), "pep440-post", None, None]]
+
+        self.assertEquals(lookup_data, expected)
+
+    def test_lookup(self):
+        def pv(lookup_data, branch, dirty, do_error=False):
+            def fake_run_command(exes, args, cwd=None):
+                if args[0] == "rev-parse":
+                    if args[1] == "--abbrev-ref":
+                        if do_error == "rev-parse-branch":
+                            return None
+                        return branch + "\n"
+                    elif args[1] == "--short":
+                        if do_error == "rev-parse-short":
+                            return None
+                        return "short\n"
+                    else:
+                        if do_error == "rev-parse":
+                            return None
+                        return "longlong\n"
+                if args[0] == "describe":
+                    if do_error == "describe":
+                        return None
+                    if dirty:
+                        return "something-dirty\n"
+                    else:
+                        return "somethingclean\n"
+                if args[0] == "rev-list":
+                    if do_error == "rev-list-none":
+                        return None
+                    elif do_error == "rev-list-nan":
+                        return "foo\n"
+                    return "42\n"
+                self.fail("git called in weird way: %s" % (args,))
+            return from_lookup.git_pieces_from_lookup(
+                lookup_data, self.fakeroot, verbose=False,
+                run_command=fake_run_command)
+
+        import re
+        lookup_data = [
+            [re.compile("branchA"), None, None, None],
+            [re.compile("branchB/.*"), None, None, None],
+            [re.compile("branchC"), None, "1.1", "shaC"],
+            [re.compile("branchD"), "pep440-dev", "1.2", "shaD"]
+        ]
+
+        self.assertRaises(from_lookup.NotThisMethod, pv, lookup_data,
+                          "branchA", False)
+        self.assertRaises(from_lookup.NotThisMethod, pv, lookup_data,
+                          "branchB/foo/bar", False)
+        self.assertRaises(from_lookup.NotThisMethod, pv, lookup_data,
+                          "branchE", False)
+        self.assertRaises(from_lookup.NotThisMethod, pv, lookup_data,
+                          "branchC", False, do_error="rev-parse")
+        self.assertRaises(from_lookup.NotThisMethod, pv, lookup_data,
+                          "branchC", False, do_error="rev-parse-branch")
+        self.assertRaises(from_lookup.NotThisMethod, pv, lookup_data,
+                          "branchC", False, do_error="rev-parse-short")
+        self.assertRaises(from_lookup.NotThisMethod, pv, lookup_data,
+                          "branchC", False, do_error="describe")
+        self.assertRaises(from_lookup.NotThisMethod, pv, lookup_data,
+                          "branchC", False, do_error="rev-list-none")
+        self.assertRaises(from_lookup.NotThisMethod, pv, lookup_data,
+                          "branchC", False, do_error="rev-list-nan")
+
+        self.assertEquals(pv(lookup_data, "branchC", False),
+                          {"closest-tag": "1.1",
+                           "dirty": False,
+                           "error": None,
+                           "distance": 42,
+                           "long": "longlong",
+                           "short": "short",
+                           "branch": "branchC",
+                           "render": None})
+        self.assertEquals(pv(lookup_data, "branchC", True),
+                          {"closest-tag": "1.1",
+                           "dirty": True,
+                           "error": None,
+                           "distance": 42,
+                           "long": "longlong",
+                           "short": "short",
+                           "branch": "branchC",
+                           "render": None})
+        self.assertEquals(pv(lookup_data, "branchD", False),
+                          {"closest-tag": "1.2",
+                           "dirty": False,
+                           "error": None,
+                           "distance": 42,
+                           "long": "longlong",
+                           "short": "short",
+                           "branch": "branchD",
+                           "render": "pep440-dev"})
+
+    def tearDown(self):
+        os.remove(self.fakelookup)
+        os.rmdir(self.fakegit)
+        os.rmdir(self.fakeroot)
 
 class Keywords(unittest.TestCase):
     def parse(self, refnames, full, prefix=""):

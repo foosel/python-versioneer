@@ -81,6 +81,7 @@ def get_config_from_root(root):
         cfg.tag_prefix = ""
     cfg.parentdir_prefix = get(parser, "parentdir_prefix")
     cfg.verbose = get(parser, "verbose")
+    cfg.lookupfile = get(parser, "lookupfile")
     return cfg
 
 

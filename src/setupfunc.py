@@ -41,6 +41,7 @@ SAMPLE_CONFIG = """
 #versionfile_build =
 #tag_prefix =
 #parentdir_prefix =
+#lookupfile =
 
 """
 
@@ -73,6 +74,7 @@ def do_setup():
                         "TAG_PREFIX": cfg.tag_prefix,
                         "PARENTDIR_PREFIX": cfg.parentdir_prefix,
                         "VERSIONFILE_SOURCE": cfg.versionfile_source,
+                        "LOOKUP_FILE": cfg.lookupfile
                         })
 
     ipy = os.path.join(os.path.dirname(cfg.versionfile_source),

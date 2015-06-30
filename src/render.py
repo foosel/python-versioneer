@@ -144,6 +144,9 @@ def render(pieces, style):
                 "dirty": None,
                 "error": pieces["error"]}
 
+    if "render" in pieces and pieces["render"] is not None:
+        style = pieces["render"]
+
     if not style or style == "default":
         style = "pep440"  # the default
 
