@@ -60,6 +60,7 @@ def generate_long_version_py(VCS):
                   "src/from_parentdir.py",
                   "src/%s/from_keywords.py" % VCS,
                   "src/%s/from_vcs.py" % VCS,
+                  "src/%s/from_lookup.py" % VCS,
                   "src/render.py",
                   "src/%s/long_get_versions.py" % VCS]:
         s.write(get(piece, unquote=True, do_strip=True))
@@ -77,6 +78,7 @@ def generate_versioneer_py():
 
         s.write(get("src/%s/from_keywords.py" % VCS, do_strip=True))
         s.write(get("src/%s/from_vcs.py" % VCS, do_strip=True))
+        s.write(get("src/%s/from_lookup.py" % VCS, do_strip=True))
 
         s.write(get("src/%s/install.py" % VCS, do_strip=True))
 
@@ -121,6 +123,7 @@ class make_long_version_py_git(Command):
                      "TAG_PREFIX": "tag-",
                      "PARENTDIR_PREFIX": "parentdir_prefix",
                      "VERSIONFILE_SOURCE": "versionfile_source",
+                     "LOOKUP_FILE": "lookupfile"
                      })
         return 0
 

@@ -2,6 +2,8 @@ import os # --STRIP DURING BUILD
 def get_config(): pass # --STRIP DURING BUILD
 def get_keywords(): pass # --STRIP DURING BUILD
 def git_versions_from_keywords(): pass # --STRIP DURING BUILD
+def git_parse_lookup_file(): pass # --STRIP DURING BUILD
+def git_pieces_from_lookup(): pass # --STRIP DURING BUILD
 def git_pieces_from_vcs(): pass # --STRIP DURING BUILD
 def versions_from_parentdir(): pass # --STRIP DURING BUILD
 class NotThisMethod(Exception): pass  # --STRIP DURING BUILD
@@ -34,6 +36,17 @@ def get_versions():
         return {"version": "0+unknown", "full-revisionid": None,
                 "dirty": None,
                 "error": "unable to find root of source tree"}
+
+    lookupfile = cfg.lookupfile if cfg.lookupfile is not None \
+        else ".versioneer-lookup"
+    lookuppath = os.path.join(root, lookupfile)
+    if os.path.exists(lookuppath):
+        try:
+            lookup_data = git_parse_lookup_file(lookuppath)
+            pieces = git_pieces_from_lookup(lookup_data, root, verbose)
+            return render(pieces, cfg.style)
+        except NotThisMethod:
+            pass
 
     try:
         pieces = git_pieces_from_vcs(cfg.tag_prefix, root, verbose)
