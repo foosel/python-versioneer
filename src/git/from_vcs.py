@@ -56,7 +56,7 @@ def git_pieces_from_vcs(tag_prefix, root, verbose, run_command=run_command):
     abbrev_ref_out = run_command(GITS,
                                  ["rev-parse", "--abbrev-ref", "HEAD"],
                                  cwd=root)
-    if abbrev_ref_out is not None:
+    if abbrev_ref_out is not None and abbrev_ref_out != "HEAD":
         pieces["branch"] = abbrev_ref_out.strip()
 
     # now we have TAG-NUM-gHEX or HEX
