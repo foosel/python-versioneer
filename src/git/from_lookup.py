@@ -66,6 +66,9 @@ def git_pieces_from_lookup(lookup, root, verbose, run_command=run_command):
         raise NotThisMethod("git rev-parse --abbrev-ref HEAD failed")
 
     current_branch = stdout.strip()
+    if current_branch == "HEAD":
+        raise NotThisMethod("not on a branch")
+
     for matcher, render, tag, ref_commit in lookup:
         if matcher.match(current_branch):
             if tag is None or ref_commit is None:
