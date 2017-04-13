@@ -1,6 +1,6 @@
----
+**HEADS UP!**
 
-**Heads-up**: You are looking at a heavily modified version of the original
+You are looking at a heavily modified version of the original
 [Versioneer](https://github.com/warner/python-versioneer), customized
 to fit the development of [OctoPrint](https://github.com/foosel/OctoPrint).
 
@@ -17,8 +17,6 @@ This version adds
 Please note that this fork is only under maintenance as far as
 required by the OctoPrint project. If you are looking for an actively
 maintained version of Versioneer, please go to the original project.
-
----
 
 The Versioneer
 ==============
