@@ -1,3 +1,25 @@
+---
+
+**Heads-up**: You are looking at a heavily modified version of the original
+[Versioneer](https://github.com/warner/python-versioneer), customized
+to fit the development of [OctoPrint](https://github.com/foosel/OctoPrint).
+
+This version adds
+
+  * support for inclusion of the current branch in the available pieces
+    to use for version generation
+  * a lookup file to use, to modify version generation based on the
+    currently checked out branch including support for virtual tags
+    pointing to specific commit hashes
+  * a new style pep440-dev: TAG.devDISTANCE[.dirty]+gHEX
+  * a new style pep440-tag: TAG[.postDISTANCE.dev0+gHEX]
+
+Please note that this fork is only under maintenance as far as
+required by the OctoPrint project. If you are looking for an actively
+maintained version of Versioneer, please go to the original project.
+
+---
+
 The Versioneer
 ==============
 
