@@ -1,4 +1,5 @@
-**HEADS UP!**
+HEADS UP!
+=========
 
 You are looking at a heavily modified version of the original
 [Versioneer](https://github.com/warner/python-versioneer), customized
