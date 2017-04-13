@@ -136,6 +136,20 @@ class Test_pep440_dev(unittest.TestCase, Testing_renderer_case_mixin):
                 }
 
 
+class Test_pep440_tag(unittest.TestCase, Testing_renderer_case_mixin):
+    style = 'pep440-tag'
+    expected = {'tagged_0_commits_clean': 'v1.2.3',
+                'tagged_0_commits_dirty': 'v1.2.3.post0.dev0+g',
+                'tagged_1_commits_clean': 'v1.2.3',
+                'tagged_1_commits_dirty': 'v1.2.3.post1.dev0+gabc',
+                'untagged_0_commits_clean': '0.post0+g',
+                'untagged_0_commits_dirty': '0.post0.dev0+g',
+                'untagged_1_commits_clean': '0.post1+gabc',
+                'untagged_1_commits_dirty': '0.post1.dev0+gabc',
+                'error_getting_parts': 'unknown'
+                }
+
+
 class Test_git_describe(unittest.TestCase, Testing_renderer_case_mixin):
     style = 'git-describe'
     expected = {'tagged_0_commits_clean': 'v1.2.3',

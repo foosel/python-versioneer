@@ -31,6 +31,31 @@ def render_pep440(pieces):
     return rendered
 
 
+def render_pep440_tag(pieces):
+    """TAG[[.postDISTANCE].dev0+gHEX] -- Just the tag if not dirty, else more info
+
+    Useful for projects that want commit based tracking on some branches
+    but have the master branch only report tags, to allow for commits that
+    do not modify actual code (e.g. to .github/* or docs).
+
+    Exceptions:
+    1: no tags. 0.postDISTANCE[.dev0]+gHEX
+    """
+    if pieces["closest-tag"]:
+        rendered = pieces["closest-tag"]
+        if pieces["dirty"]:
+            rendered += ".post%d" % pieces["distance"]
+            rendered += ".dev0"
+            rendered += "+g%s" % pieces["short"]
+    else:
+        # exception #1
+        rendered = "0.post%d" % pieces["distance"]
+        if pieces["dirty"]:
+            rendered += ".dev0"
+        rendered += "+g%s" % pieces["short"]
+    return rendered
+
+
 def render_pep440_pre(pieces):
     """TAG[.post.devDISTANCE] -- No -dirty.
 
@@ -181,6 +206,8 @@ def render(pieces, style):
         rendered = render_pep440_old(pieces)
     elif style == "pep440-dev":
         rendered = render_pep440_dev(pieces)
+    elif style == "pep440-tag":
+        rendered = render_pep440_tag(pieces)
     elif style == "git-describe":
         rendered = render_git_describe(pieces)
     elif style == "git-describe-long":
